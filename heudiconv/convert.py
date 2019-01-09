@@ -475,12 +475,36 @@ def save_converted_files(res, item_dicoms, bids, outtype, prefix, outname_bids, 
                       else [None] * len(res_files))
 
         for fl, suffix, bids_file in zip(res_files, suffixes, bids_files):
-            outname = "%s%s.%s" % (prefix, suffix, outtype)
+            
+            if ( bids and (prefix[-5:] == '_PDT2') ):
+                if   (suffix == '1'):
+                    outname = "%s_acq-%s%s.%s" % (prefix[:-5], 'PD', '_PDT2', outtype)
+                    if bids_file:
+                        outname_bids_file = "%s_acq-%s%s.json" % (prefix[:-5], 'PD', '_PDT2')
+                        safe_copyfile(bids_file, outname_bids_file, overwrite)
+                        bids_outfiles.append(outname_bids_file)
+                if   (suffix == '2'):
+                    outname = "%s_acq-%s%s.%s" % (prefix[:-5], 'T2', '_PDT2', outtype)
+                    if bids_file:
+                        outname_bids_file = "%s_acq-%s%s.json" % (prefix[:-5], 'T2', '_PDT2')
+                        safe_copyfile(bids_file, outname_bids_file, overwrite)
+                        bids_outfiles.append(outname_bids_file)
+#                else:
+#                    outname = "%s_mod-%s%s.%s" % (prefix[:-5], 'Unknown', '_PDT2', outtype)
+#                    if bids_file:
+#                        outname_bids_file = "%s_mod-%s%s.json" % (prefix[:-5], 'Unknown', '_PDT2')
+#                        safe_copyfile(bids_file, outname_bids_file, overwrite)
+#                        bids_outfiles.append(outname_bids_file)
+            else:
+                outname = "%s%s.%s" % (prefix, suffix, outtype)
+                if bids_file:
+                    outname_bids_file = "%s%s.json" % (prefix, suffix)
+                    safe_copyfile(bids_file, outname_bids_file, overwrite)
+                    bids_outfiles.append(outname_bids_file)
+            
             safe_copyfile(fl, outname, overwrite)
-            if bids_file:
-                outname_bids_file = "%s%s.json" % (prefix, suffix)
-                safe_copyfile(bids_file, outname_bids_file, overwrite)
-                bids_outfiles.append(outname_bids_file)
+            
+            
     # res_files is not a list
     else:
         outname = "{}.{}".format(prefix, outtype)
